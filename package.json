@@ -1,0 +1,8 @@
+{
+	"name": "wordpress",
+	"private": true,
+	"scripts": {
+		"dev": "portless alias wordpress.flux 8000 --force && docker compose up",
+		"build": "docker compose build --no-cache"
+	}
+}

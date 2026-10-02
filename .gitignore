@@ -1,0 +1,30 @@
+# Ignore everything, then whitelist what belongs in the repo
+/*
+
+!.gitignore
+!.env.example
+!Makefile
+!composer.json
+!composer.lock
+!docker-compose.yml
+!docker/
+!package.json
+!phpcs.xml
+!pnpm-lock.yaml
+
+# Only our own plugins and theme
+!wp-content/
+wp-content/*
+!wp-content/plugins/
+wp-content/plugins/*
+!wp-content/plugins/flux-*/
+!wp-content/themes/
+wp-content/themes/*
+!wp-content/themes/flux-child/
+
+# Build output and dependencies inside whitelisted folders
+vendor/
+node_modules/
+dist/
+build/
+.DS_Store

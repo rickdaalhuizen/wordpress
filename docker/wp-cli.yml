@@ -1,0 +1,4 @@
+path: /var/www/html
+color: true
+apache_modules:
+  - mod_rewrite

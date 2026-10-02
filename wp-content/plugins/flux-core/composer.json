@@ -1,0 +1,19 @@
+{
+	"name": "flux/core",
+	"description": "Flux Core Plugin",
+	"type": "wordpress-plugin",
+	"license": "proprietary",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"require": {
+		"php": ">=8.4"
+	},
+	"autoload": {
+		"psr-4": {
+			"Flux\\Core\\": "src/"
+		}
+	},
+	"config": {
+		"sort-packages": true
+	}
+}

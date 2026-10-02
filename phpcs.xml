@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<ruleset name="Flux">
+    <!-- Include the WordPress coding standards -->
+    <rule ref="WordPress">
+        <exclude name="Squiz.Commenting.ClassComment" />
+        <exclude name="Squiz.Commenting.VariableComment.Missing" />
+        <exclude name="Squiz.Commenting.FunctionComment.Missing" />
+        <exclude name="Squiz.Commenting.FunctionComment.WrongStyle" />
+
+        <exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed" />
+        <exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.Found" />
+        <exclude name="WordPress.DB.SlowDBQuery.slow_db_query_meta_query" />
+        <exclude name="WordPress.WP.I18n.MissingTranslatorsComment" />
+        <exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log" />
+		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents" />
+        <exclude name="Generic.Commenting.DocComment.MissingShort" />
+    </rule>
+
+    <rule ref="WordPress-Core">
+        <!-- Exclude the Yoda condition check -->
+        <exclude name="WordPress.PHP.YodaConditions" />
+    </rule>
+
+    <rule ref="WordPress-Docs">
+        <exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
+        <exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+        <exclude name="Squiz.Commenting.FunctionComment.ThrowsNoFullStop" />
+        <exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />
+        <exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+    </rule>
+
+    <!-- Allow '/=-' in hook names. -->
+    <rule ref="WordPress.NamingConventions.ValidHookName">
+        <properties>
+            <property name="additionalWordDelimiters" value="/=-" />
+        </properties>
+    </rule>
+
+
+    <!-- PSR-4 autoloading needs file names that match the class name. -->
+    <rule ref="WordPress.Files.FileName">
+        <exclude-pattern>*/src/*</exclude-pattern>
+    </rule>
+
+</ruleset>

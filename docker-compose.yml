@@ -1,0 +1,108 @@
+name: ${COMPOSE_PROJECT_NAME:-flux}
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-file: 3
+    max-size: 5m
+
+x-wordpress-base: &wordpress-base
+  build:
+    context: ./docker
+    dockerfile: Dockerfile
+    target: ${DOCKER_TARGET:-dev}
+    args:
+      PHP_VERSION: ${PHP_VERSION:-8.5}
+      WORDPRESS_VERSION: ${WORDPRESS_VERSION:-latest}
+      WORDPRESS_LOCALE: ${WORDPRESS_LOCALE:-en_US}
+    secrets:
+      - acf_pro_key
+  image: flux/wordpress:${DOCKER_IMAGE_VERSION:-latest}-${DOCKER_TARGET:-dev}-${PHP_VERSION:-8.5}
+  pull_policy: build
+  env_file:
+    - .env
+  logging: *default-logging
+
+services:
+  wordpress:
+    <<: *wordpress-base
+    container_name: ${COMPOSE_PROJECT_NAME}-wordpress
+    ports:
+      - ${WORDPRESS_PORT:-8000}:8000
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wp", "core", "is-installed", "--path=/var/www/html"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    volumes:
+      - wordpress_core:/var/www/html
+      - ./wp-content/plugins:/var/www/html/wp-content/plugins
+      - ./docker/apache/.htaccess:/var/www/html/.htaccess
+
+  worker:
+    <<: *wordpress-base
+    container_name: ${COMPOSE_PROJECT_NAME}-worker
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    volumes:
+      - wordpress_core:/var/www/html
+      - ./wp-content/plugins:/var/www/html/wp-content/plugins
+    command: ["bash", "-c", "while true; do wp cron event run --due-now --quiet; sleep 60; done"]
+
+  mysql:
+    image: mariadb:lts
+    container_name: ${COMPOSE_PROJECT_NAME}-mysql
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - ${DB_HOST_PORT:-3306}:3306
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-flux_db}
+      MARIADB_USER: ${DB_USER:-flux_root}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-root}
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+
+  adminer:
+    image: adminer:latest
+    container_name: ${COMPOSE_PROJECT_NAME}-adminer
+    restart: unless-stopped
+    profiles: [tools]
+    depends_on:
+      - mysql
+    ports:
+      - ${ADMINER_PORT:-8080}:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    logging: *default-logging
+
+  mailpit:
+    image: axllent/mailpit:v1
+    container_name: ${COMPOSE_PROJECT_NAME}-mailpit
+    restart: unless-stopped
+    profiles: [tools]
+    ports:
+      - ${SMTP_PORT:-1025}:1025
+      - ${MAIL_PORT:-8025}:8025
+    logging: *default-logging
+
+volumes:
+  db:
+  wordpress_core:
+
+secrets:
+  acf_pro_key:
+    environment: ACF_PRO_KEY

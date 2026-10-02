@@ -1,0 +1,19 @@
+{
+	"name": "flux/quote",
+	"description": "Flux Quote Plugin",
+	"type": "wordpress-plugin",
+	"license": "proprietary",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"require": {
+		"php": ">=8.4"
+	},
+	"autoload": {
+		"psr-4": {
+			"Flux\\Quote\\": "src/"
+		}
+	},
+	"config": {
+		"sort-packages": true
+	}
+}
