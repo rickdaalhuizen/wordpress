@@ -15,8 +15,8 @@ use WP_Post;
 
 final class Repository
 {
-    private const CONFIGURATION_TYPE = 'flux_configuration';
-    private const QUOTATION_TYPE = 'flux_quotation';
+    public const CONFIGURATION_TYPE = 'flux_configuration';
+    public const QUOTATION_TYPE = 'flux_quotation';
 
     private const PUBLIC_ID = '_flux_public_id';
     private const PRIVATE_ID = '_flux_private_id';
@@ -50,16 +50,8 @@ final class Repository
     public function find_configuration(string $public_id): ?array
     {
         $post = $this->find_post(self::CONFIGURATION_TYPE, $public_id, 'publish');
-        if (!$post) {
-            return null;
-        }
 
-        return [
-            'cid' => $public_id,
-            'title' => $post->post_title,
-            'data' => $this->json_meta($post->ID, self::CONFIGURATION),
-            'created_at' => $post->post_date,
-        ];
+        return $post ? $this->to_configuration($post) : null;
     }
 
     public function save_quotation(
@@ -220,7 +212,17 @@ final class Repository
         return $posts[0] ?? null;
     }
 
-    private function to_quotation(WP_Post $post): Quotation
+    public function to_configuration(WP_Post $post): array
+    {
+        return [
+            'cid' => $this->meta($post->ID, self::PUBLIC_ID),
+            'title' => $post->post_title,
+            'data' => $this->json_meta($post->ID, self::CONFIGURATION),
+            'created_at' => $post->post_date,
+        ];
+    }
+
+    public function to_quotation(WP_Post $post): Quotation
     {
         $pdf_url = $this->meta($post->ID, self::PDF_URL);
 
