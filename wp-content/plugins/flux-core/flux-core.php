@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Flux Core entry point: boots the plugin.
  *
@@ -18,10 +19,10 @@
 
 declare(strict_types=1);
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (!defined('ABSPATH')) {
+    exit;
 }
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-( new Flux\Core\Plugin() )->register();
+(new Flux\Core\Plugin())->register();

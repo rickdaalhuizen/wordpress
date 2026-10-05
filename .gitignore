@@ -1,7 +1,7 @@
-# Ignore everything, then whitelist what belongs in the repo
 /*
 
 !.gitignore
+!.bruno/
 !.env.example
 !Makefile
 !composer.json
@@ -12,7 +12,6 @@
 !phpcs.xml
 !pnpm-lock.yaml
 
-# Only our own plugins and theme
 !wp-content/
 wp-content/*
 !wp-content/plugins/
@@ -22,7 +21,6 @@ wp-content/plugins/*
 wp-content/themes/*
 !wp-content/themes/flux-child/
 
-# Build output and dependencies inside whitelisted folders
 vendor/
 node_modules/
 dist/

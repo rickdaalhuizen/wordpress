@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wires all Flux Quote hooks.
  *
@@ -9,10 +10,26 @@ declare(strict_types=1);
 
 namespace Flux\Quote;
 
-final class Plugin {
+final class Plugin
+{
+    public function register(): void
+    {
+        add_action('plugins_loaded', [$this, 'boot']);
+    }
 
-	public function register(): void {
-		add_action( 'init', array( new PostType(), 'register' ) );
-		add_action( 'rest_api_init', array( new RestController(), 'register_routes' ) );
-	}
+    public function boot(): void
+    {
+        $adapter = apply_filters('flux_quote/adapter', null);
+        if (!$adapter instanceof Adapter) {
+            $adapter = new Adapter();
+        }
+
+        $repository = new Repository();
+        $config_controller = new ConfigController($adapter, $repository);
+        $quote_controller = new QuoteController($adapter, $repository, new PdfClient());
+
+        add_action('init', [$repository, 'register_post_types']);
+        add_action('rest_api_init', [$config_controller, 'register_routes']);
+        add_action('rest_api_init', [$quote_controller, 'register_routes']);
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wires all Flux Core hooks.
  *
@@ -9,7 +10,9 @@ declare(strict_types=1);
 
 namespace Flux\Core;
 
-final class Plugin {
-
-	public function register(): void {}
+final class Plugin
+{
+    public function register(): void
+    {
+    }
 }
