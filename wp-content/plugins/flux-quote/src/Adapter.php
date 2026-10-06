@@ -27,6 +27,7 @@ class Adapter
 
     /**
      * The mail sent to the contact with the PDF attached, or null to send none.
+     * Subject and body are edited in Quotations → Mail settings; the HTML layout can be overridden by the theme.
      * Define FLUX_QUOTE_MAIL_BCC to also receive a copy of every quotation.
      *
      * @return array{
@@ -44,20 +45,17 @@ class Adapter
             return null;
         }
 
-        $site = wp_specialchars_decode((string) get_option('blogname'), ENT_QUOTES);
+        $template = new MailTemplate();
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+        if (defined('FLUX_QUOTE_MAIL_BCC')) {
+            $headers[] = 'Bcc: ' . FLUX_QUOTE_MAIL_BCC;
+        }
 
         return [
             'to' => $to,
-            'subject' => sprintf(__('[%s] Your quotation', 'flux-quote'), $site),
-            'message' => sprintf(
-                __(
-                    "Hello %1\$s,\n\nThank you for your request. Please find your quotation attached.\n\nBest regards,\n%2\$s",
-                    'flux-quote'
-                ),
-                $quotation->contact['firstName'] ?? '',
-                $site
-            ),
-            'headers' => defined('FLUX_QUOTE_MAIL_BCC') ? ['Bcc: ' . FLUX_QUOTE_MAIL_BCC] : [],
+            'subject' => $template->subject($quotation),
+            'message' => $template->message($quotation),
+            'headers' => $headers,
             'attachment_name' => sanitize_file_name(
                 sprintf(
                     'Quote-%s-%s.pdf',

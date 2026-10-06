@@ -35,6 +35,7 @@ final class Plugin
 
         if (is_admin()) {
             (new AdminUi($repository, $delivery))->register();
+            (new MailSettingsPage(new MailTemplate()))->register();
         }
     }
 }
