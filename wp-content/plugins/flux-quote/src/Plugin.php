@@ -31,5 +31,9 @@ final class Plugin
         add_action('init', [$repository, 'register_post_types']);
         add_action('rest_api_init', [$config_controller, 'register_routes']);
         add_action('rest_api_init', [$quote_controller, 'register_routes']);
+
+        if (is_admin()) {
+            (new AdminUi($repository))->register();
+        }
     }
 }
