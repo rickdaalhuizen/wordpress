@@ -29,7 +29,13 @@ class Adapter
      * The mail sent to the contact with the PDF attached, or null to send none.
      * Define FLUX_QUOTE_MAIL_BCC to also receive a copy of every quotation.
      *
-     * @return array{to: string|string[], subject: string, message: string, headers?: string[]}|null
+     * @return array{
+     *     to: string|string[],
+     *     subject: string,
+     *     message: string,
+     *     headers?: string[],
+     *     attachment_name?: string
+     * }|null
      */
     public function quotation_mail(Quotation $quotation): ?array
     {
@@ -52,6 +58,13 @@ class Adapter
                 $site
             ),
             'headers' => defined('FLUX_QUOTE_MAIL_BCC') ? ['Bcc: ' . FLUX_QUOTE_MAIL_BCC] : [],
+            'attachment_name' => sanitize_file_name(
+                sprintf(
+                    'Quote-%s-%s.pdf',
+                    $quotation->contact['lastName'] ?? '',
+                    mysql2date('Y-m-d', $quotation->created_at)
+                )
+            ),
         ];
     }
 

@@ -17,7 +17,13 @@ final class Mailer
     /**
      * Returns null when the mail was handed to the mail server, the failure reason otherwise.
      *
-     * @param array{to: string|string[], subject: string, message: string, headers?: string[]} $mail
+     * @param array{
+     *     to: string|string[],
+     *     subject: string,
+     *     message: string,
+     *     headers?: string[],
+     *     attachment_name?: string
+     * } $mail
      */
     public function send(array $mail, Quotation $quotation): ?string
     {
@@ -33,7 +39,13 @@ final class Mailer
         };
 
         add_action('wp_mail_failed', $capture);
-        $sent = wp_mail($mail['to'], $mail['subject'], $mail['message'], $mail['headers'] ?? [], [$attachment]);
+        $sent = wp_mail(
+            $mail['to'],
+            $mail['subject'],
+            $mail['message'],
+            $mail['headers'] ?? [],
+            [($mail['attachment_name'] ?? basename($attachment)) => $attachment]
+        );
         remove_action('wp_mail_failed', $capture);
 
         return $sent ? null : $this->fail($quotation, $error ?? 'wp_mail returned false');
