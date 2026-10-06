@@ -40,7 +40,7 @@ final class Repository
 
     public function save_configuration(?string $title, array $data): string|WP_Error
     {
-        $title ??= sprintf(__('Configuration %s', 'flux-quote'), wp_date('d/m/Y H:i:s'));
+        $title ??= __('Configuration', 'flux-quote');
 
         $post_id = $this->insert(self::CONFIGURATION_TYPE, $title, [self::CONFIGURATION => $data]);
 
@@ -62,10 +62,9 @@ final class Repository
     ): Quotation|WP_Error {
         $title ??= trim(
             sprintf(
-                __('Quotation %1$s %2$s %3$s', 'flux-quote'),
+                __('Quotation %1$s %2$s', 'flux-quote'),
                 $contact['firstName'] ?? '',
-                $contact['lastName'] ?? '',
-                wp_date('d/m/Y H:i:s')
+                $contact['lastName'] ?? ''
             )
         );
 

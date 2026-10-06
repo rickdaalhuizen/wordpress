@@ -88,7 +88,7 @@ final class AdminUi
         $this->render_rows(
             [
                 __('Status', 'flux-quote') => $this->status_label($quotation->pdf_status),
-                __('File', 'flux-quote') => $quotation->pdf_url ? __('Open PDF', 'flux-quote') : '—',
+                __('File', 'flux-quote') => $quotation->pdf_url ? __('Download', 'flux-quote') : '—',
                 __('Public ID', 'flux-quote') => $quotation->public_id,
             ],
             $quotation->pdf_url ? [__('File', 'flux-quote') => $quotation->pdf_url] : []
@@ -124,7 +124,8 @@ final class AdminUi
             [
                 'flux_email' => __('Email', 'flux-quote'),
                 'flux_phone' => __('Phone', 'flux-quote'),
-                'flux_pdf' => __('PDF', 'flux-quote'),
+                'flux_pdf' => __('Quote', 'flux-quote'),
+                'flux_status' => __('Status', 'flux-quote'),
             ]
         );
     }
@@ -142,13 +143,16 @@ final class AdminUi
                 echo esc_html($quotation->contact['phone'] ?? '');
                 break;
             case 'flux_pdf':
-                echo $quotation->pdf_url
-                    ? sprintf(
+                if ($quotation->pdf_url) {
+                    printf(
                         '<a href="%s" target="_blank" rel="noopener">%s</a>',
                         esc_url($quotation->pdf_url),
-                        esc_html__('Open PDF', 'flux-quote')
-                    )
-                    : esc_html($this->status_label($quotation->pdf_status));
+                        esc_html__('Download', 'flux-quote')
+                    );
+                }
+                break;
+            case 'flux_status':
+                echo esc_html($this->status_label($quotation->pdf_status));
                 break;
         }
     }
