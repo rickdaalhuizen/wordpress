@@ -26,14 +26,15 @@ final class Plugin
 
         $repository = new Repository();
         $config_controller = new ConfigController($adapter, $repository);
-        $quote_controller = new QuoteController($adapter, $repository, new PdfClient());
+        $delivery = new Delivery($adapter, $repository, new PdfClient(), new Mailer());
+        $quote_controller = new QuoteController($adapter, $repository, $delivery);
 
         add_action('init', [$repository, 'register_post_types']);
         add_action('rest_api_init', [$config_controller, 'register_routes']);
         add_action('rest_api_init', [$quote_controller, 'register_routes']);
 
         if (is_admin()) {
-            (new AdminUi($repository))->register();
+            (new AdminUi($repository, $delivery))->register();
         }
     }
 }

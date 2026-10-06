@@ -25,6 +25,8 @@ final class Repository
     private const DOCUMENT = '_flux_document';
     private const PDF_URL = '_flux_pdf_url';
     private const PDF_STATUS = '_flux_pdf_status';
+    private const MAIL_STATUS = '_flux_mail_status';
+    private const MAIL_ERROR = '_flux_mail_error';
 
     private const MAX_ID_ATTEMPTS = 3;
 
@@ -76,6 +78,7 @@ final class Repository
                 self::CONTACT => $contact,
                 self::DOCUMENT => $document,
                 self::PDF_STATUS => PdfStatus::Pending->value,
+                self::MAIL_STATUS => MailStatus::Pending->value,
             ]
         );
 
@@ -106,6 +109,23 @@ final class Repository
         update_post_meta($post->ID, self::PDF_STATUS, $status->value);
         if (null !== $pdf_url) {
             update_post_meta($post->ID, self::PDF_URL, $pdf_url);
+        }
+
+        return $this->to_quotation($post);
+    }
+
+    public function save_mail_result(Quotation $quotation, MailStatus $status, ?string $error = null): Quotation
+    {
+        $post = $this->find_post(self::QUOTATION_TYPE, $quotation->public_id, 'publish');
+        if (!$post) {
+            return $quotation;
+        }
+
+        update_post_meta($post->ID, self::MAIL_STATUS, $status->value);
+        if (null === $error) {
+            delete_post_meta($post->ID, self::MAIL_ERROR);
+        } else {
+            update_post_meta($post->ID, self::MAIL_ERROR, wp_slash($error));
         }
 
         return $this->to_quotation($post);
@@ -224,6 +244,7 @@ final class Repository
     public function to_quotation(WP_Post $post): Quotation
     {
         $pdf_url = $this->meta($post->ID, self::PDF_URL);
+        $mail_error = $this->meta($post->ID, self::MAIL_ERROR);
 
         return new Quotation(
             public_id: $this->meta($post->ID, self::PUBLIC_ID),
@@ -234,6 +255,8 @@ final class Repository
             document: $this->json_meta($post->ID, self::DOCUMENT),
             pdf_url: '' === $pdf_url ? null : $pdf_url,
             pdf_status: PdfStatus::tryFrom($this->meta($post->ID, self::PDF_STATUS)) ?? PdfStatus::Pending,
+            mail_status: MailStatus::tryFrom($this->meta($post->ID, self::MAIL_STATUS)) ?? MailStatus::Pending,
+            mail_error: '' === $mail_error ? null : $mail_error,
             created_at: $post->post_date,
         );
     }

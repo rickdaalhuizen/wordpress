@@ -22,7 +22,7 @@ final class QuoteController
     public function __construct(
         private Adapter $adapter,
         private Repository $repository,
-        private PdfClient $pdf_client,
+        private Delivery $delivery,
     ) {
     }
 
@@ -76,11 +76,19 @@ final class QuoteController
             return $saved;
         }
 
-        $pdf_url = $this->pdf_client->send($this->adapter->pdf_payload($saved), $saved);
-        $saved = $this->repository->save_pdf_result($saved, $pdf_url);
+        // The quotation is saved at this point: PDF or mail failures are recorded on it, not returned as errors.
+        $saved = $this->delivery->deliver($saved);
+        do_action('flux_quote/quotation_saved', $saved);
 
         return new WP_REST_Response(
-            ['quotation' => ['cid' => $saved->public_id, 'id' => $saved->private_id, 'pdf_url' => $saved->pdf_url]],
+            [
+                'quotation' => [
+                    'cid' => $saved->public_id,
+                    'id' => $saved->private_id,
+                    'pdf_url' => $saved->pdf_url,
+                    'mail_status' => $saved->mail_status->value,
+                ],
+            ],
             201
         );
     }
