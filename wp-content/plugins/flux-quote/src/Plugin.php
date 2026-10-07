@@ -25,9 +25,10 @@ final class Plugin
         }
 
         $repository = new Repository();
-        $config_controller = new ConfigController($adapter, $repository);
+        $rate_limiter = new RateLimiter();
+        $config_controller = new ConfigController($adapter, $repository, $rate_limiter);
         $delivery = new Delivery($adapter, $repository, new PdfClient(), new Mailer());
-        $quote_controller = new QuoteController($adapter, $repository, $delivery);
+        $quote_controller = new QuoteController($adapter, $repository, $delivery, $rate_limiter);
 
         add_action('init', [$repository, 'register_post_types']);
         add_action('rest_api_init', [$config_controller, 'register_routes']);

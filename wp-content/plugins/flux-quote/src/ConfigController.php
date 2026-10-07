@@ -17,8 +17,13 @@ use WP_REST_Server;
 
 final class ConfigController
 {
-    public function __construct(private Adapter $adapter, private Repository $repository)
-    {
+    private const MAX_PER_IP_PER_HOUR = 30;
+
+    public function __construct(
+        private Adapter $adapter,
+        private Repository $repository,
+        private RateLimiter $rate_limiter,
+    ) {
     }
 
     public function register_routes(): void
@@ -42,7 +47,12 @@ final class ConfigController
 
     public function save(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
-        $rejected = $this->adapter->before_save($request);
+        $rejected = $this->rate_limiter->hit(
+            'configuration_ip',
+            $this->rate_limiter->client_ip(),
+            self::MAX_PER_IP_PER_HOUR,
+            HOUR_IN_SECONDS
+        ) ?? $this->adapter->before_save($request);
         if ($rejected) {
             return $rejected;
         }

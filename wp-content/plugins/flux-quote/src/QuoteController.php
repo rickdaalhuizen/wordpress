@@ -19,10 +19,14 @@ final class QuoteController
 {
     private const TEXT = ['type' => 'string', 'required' => true, 'minLength' => 1];
 
+    private const MAX_PER_IP_PER_HOUR = 10;
+    private const MAX_MAILS_PER_RECIPIENT_PER_DAY = 10;
+
     public function __construct(
         private Adapter $adapter,
         private Repository $repository,
         private Delivery $delivery,
+        private RateLimiter $rate_limiter,
     ) {
     }
 
@@ -61,7 +65,18 @@ final class QuoteController
 
     public function save(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
-        $rejected = $this->adapter->before_save($request);
+        // The recipient limit keeps the endpoint from mailing one address over and over, whatever IPs are used.
+        $rejected = $this->rate_limiter->hit(
+            'quotation_ip',
+            $this->rate_limiter->client_ip(),
+            self::MAX_PER_IP_PER_HOUR,
+            HOUR_IN_SECONDS
+        ) ?? $this->rate_limiter->hit(
+            'quotation_mail',
+            strtolower(trim((string) $request['contact']['email'])),
+            self::MAX_MAILS_PER_RECIPIENT_PER_DAY,
+            DAY_IN_SECONDS
+        ) ?? $this->adapter->before_save($request);
         if ($rejected) {
             return $rejected;
         }
