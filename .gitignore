@@ -4,6 +4,7 @@
 !.bruno/
 !.env.example
 !Makefile
+!README.md
 !composer.json
 !composer.lock
 !docker-compose.yml
