@@ -46,10 +46,27 @@ final class RateLimiter
     }
 
     /**
+     * For IPv6 this returns the packed /64 prefix (raw bytes), since a single connection gets a whole /64
+     * and devices can rotate the lower 64 bits; limiting the prefix counts per household/office.
      * Caution: Behind a reverse proxy this is the proxy's address, so every visitor would share the same limit.
      */
     public function client_ip(): string
     {
-        return (string) filter_var($_SERVER['REMOTE_ADDR'] ?? '', FILTER_VALIDATE_IP);
+        $ip = (string) filter_var($_SERVER['REMOTE_ADDR'] ?? '', FILTER_VALIDATE_IP);
+        if ($ip === '') {
+            return '';
+        }
+
+        $packed = inet_pton($ip);
+        if ($packed === false || strlen($packed) !== 16) {
+            return $ip;
+        }
+
+        // An IPv4-mapped address (::ffff:a.b.c.d) has an all-zero prefix, so it would put every IPv4 client in one bucket.
+        if (strncmp($packed, str_repeat("\0", 10) . "\xff\xff", 12) === 0) {
+            return (string) inet_ntop(substr($packed, 12));
+        }
+
+        return substr($packed, 0, 8);
     }
 }
