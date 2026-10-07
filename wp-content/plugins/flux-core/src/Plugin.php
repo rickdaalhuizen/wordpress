@@ -41,10 +41,10 @@ final class Plugin
     }
 
     /**
-     * Reads a wp-config.php constant, falling back to the environment (the Docker .env).
+     * Reads a wp-config.php constant.
      */
     private function setting(string $name): string
     {
-        return defined($name) ? (string) constant($name) : (string) getenv($name);
+        return defined($name) ? (string) constant($name) : '';
     }
 }

@@ -20,6 +20,10 @@ define( 'WP_DEBUG', ${WP_DEBUG:-true} );
 define( 'WP_DEBUG_LOG', ${WP_DEBUG_LOG:-true} );
 define( 'WP_DEBUG_DISPLAY', ${WP_DEBUG_DISPLAY:-false} );
 define( 'DISABLE_WP_CRON', ${DISABLE_WP_CRON:-true} );
+define( 'SMTP_HOST', 'mailpit' );
+define( 'SMTP_PORT', 1025 );
+define( 'MAIL_FROM', 'devis@flux.be' );
+define( 'MAIL_FROM_NAME', 'Flux' );
 ${EXTRA_PHP:-}
 PHP
     fi
