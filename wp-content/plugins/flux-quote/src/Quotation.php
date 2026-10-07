@@ -21,6 +21,8 @@ final readonly class Quotation
         public array $document,
         public ?string $pdf_url,
         public PdfStatus $pdf_status,
+        public MailStatus $mail_status,
+        public ?string $mail_error,
         public string $created_at,
     ) {
     }

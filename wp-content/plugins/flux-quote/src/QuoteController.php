@@ -19,10 +19,14 @@ final class QuoteController
 {
     private const TEXT = ['type' => 'string', 'required' => true, 'minLength' => 1];
 
+    private const MAX_PER_IP_PER_HOUR = 10;
+    private const MAX_MAILS_PER_RECIPIENT_PER_DAY = 10;
+
     public function __construct(
         private Adapter $adapter,
         private Repository $repository,
-        private PdfClient $pdf_client,
+        private Delivery $delivery,
+        private RateLimiter $rate_limiter,
     ) {
     }
 
@@ -61,7 +65,18 @@ final class QuoteController
 
     public function save(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
-        $rejected = $this->adapter->before_save($request);
+        // The recipient limit keeps the endpoint from mailing one address over and over, whatever IPs are used.
+        $rejected = $this->rate_limiter->hit(
+            'quotation_ip',
+            $this->rate_limiter->client_ip(),
+            self::MAX_PER_IP_PER_HOUR,
+            HOUR_IN_SECONDS
+        ) ?? $this->rate_limiter->hit(
+            'quotation_mail',
+            strtolower(trim((string) $request['contact']['email'])),
+            self::MAX_MAILS_PER_RECIPIENT_PER_DAY,
+            DAY_IN_SECONDS
+        ) ?? $this->adapter->before_save($request);
         if ($rejected) {
             return $rejected;
         }
@@ -76,11 +91,19 @@ final class QuoteController
             return $saved;
         }
 
-        $pdf_url = $this->pdf_client->send($this->adapter->pdf_payload($saved), $saved);
-        $saved = $this->repository->save_pdf_result($saved, $pdf_url);
+        // The quotation is saved at this point: PDF or mail failures are recorded on it, not returned as errors.
+        $saved = $this->delivery->deliver($saved);
+        do_action('flux_quote/quotation_saved', $saved);
 
         return new WP_REST_Response(
-            ['quotation' => ['cid' => $saved->public_id, 'id' => $saved->private_id, 'pdf_url' => $saved->pdf_url]],
+            [
+                'quotation' => [
+                    'cid' => $saved->public_id,
+                    'id' => $saved->private_id,
+                    'pdf_url' => $saved->pdf_url,
+                    'mail_status' => $saved->mail_status->value,
+                ],
+            ],
             201
         );
     }
