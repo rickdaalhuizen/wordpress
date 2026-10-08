@@ -27,6 +27,7 @@ final class QuoteController
         private Repository $repository,
         private Delivery $delivery,
         private RateLimiter $rate_limiter,
+        private EventLog $events,
     ) {
     }
 
@@ -90,6 +91,18 @@ final class QuoteController
         if ($saved instanceof WP_Error) {
             return $saved;
         }
+
+        $this->events->record(
+            $saved->post_id,
+            Event::Requested,
+            implode(', ', $saved->products()),
+            [
+                'quote_id' => $saved->public_id,
+                'ip' => $this->rate_limiter->client_ip(),
+                'user_agent' => mb_substr((string) $request->get_header('user_agent'), 0, 255),
+                'referer' => (string) $request->get_header('referer'),
+            ]
+        );
 
         // The quotation is saved at this point: PDF or mail failures are recorded on it, not returned as errors.
         $saved = $this->delivery->deliver($saved);

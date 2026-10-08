@@ -13,6 +13,7 @@ namespace Flux\Quote;
 final readonly class Quotation
 {
     public function __construct(
+        public int $post_id,
         public string $public_id,
         public string $private_id,
         public string $title,
@@ -23,7 +24,21 @@ final readonly class Quotation
         public PdfStatus $pdf_status,
         public MailStatus $mail_status,
         public ?string $mail_error,
+        public QuoteStatus $status,
         public string $created_at,
     ) {
+    }
+
+    public function products(): array
+    {
+        $names = [];
+        foreach ($this->document['blocks'] ?? [] as $block) {
+            $title = $block['data']['title'] ?? '';
+            if ('table' === ($block['type'] ?? '') && is_string($title) && '' !== $title) {
+                $names[] = $title;
+            }
+        }
+
+        return $names;
     }
 }
