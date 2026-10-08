@@ -27,7 +27,7 @@ class Adapter
 
     /**
      * The mail sent to the contact with the PDF attached, or null to send none.
-     * Subject and body are edited in Quotations → Mail settings; the HTML layout can be overridden by the theme.
+     * Subject and body are edited in Flux → Settings; the HTML layout can be overridden by the theme.
      * Define FLUX_QUOTE_MAIL_BCC to also receive a copy of every quotation.
      *
      * @return array{

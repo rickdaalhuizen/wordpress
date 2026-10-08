@@ -1,0 +1,548 @@
+.flux-quote-json {
+	max-height: 400px;
+	overflow: auto;
+	background: #f6f7f7;
+	padding: 12px;
+}
+
+.flux-quote-status {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 2px;
+	font-weight: 500;
+}
+
+.flux-quote-status--draft {
+	background: #f0f6fc;
+	color: #043959;
+}
+
+.flux-quote-status--sent {
+	background: #fcf9e8;
+	color: #614200;
+}
+
+.flux-quote-status--accepted {
+	background: #edfaef;
+	color: #005c12;
+}
+
+.flux-quote-status--expired {
+	background: #fcf0f1;
+	color: #8a2424;
+}
+
+.flux-quote-event {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 2px;
+	background: #f0f0f1;
+	color: #3c434a;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.flux-quote-event--success {
+	background: #edfaef;
+	color: #005c12;
+}
+
+.flux-quote-event--error {
+	background: #fcf0f1;
+	color: #8a2424;
+}
+
+.wp-list-table.events .column-time {
+	width: 160px;
+}
+
+.wp-list-table.events .column-event {
+	width: 140px;
+}
+
+.wp-list-table.events .column-quotation {
+	width: 180px;
+}
+
+.wp-list-table.events .column-user {
+	width: 200px;
+}
+
+.flux-quote-log--error > :first-child {
+	box-shadow: inset 4px 0 0 #d63638;
+}
+
+.flux-quote-log__message {
+	margin: 0;
+	word-break: break-word;
+}
+
+.flux-quote-log__context summary {
+	margin-top: 4px;
+	color: var(--wp-admin-theme-color, #2271b1);
+	cursor: pointer;
+}
+
+.flux-quote-log__context table {
+	margin-top: 8px;
+}
+
+.flux-quote-log__context th {
+	width: 180px;
+	padding: 4px 8px;
+	font-weight: 600;
+}
+
+.flux-quote-log__context td {
+	padding: 4px 8px;
+	word-break: break-all;
+}
+
+.flux-quote-log__user {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.flux-quote-log__user img {
+	border-radius: 50%;
+}
+
+.flux-quote-box-fields {
+	padding: 4px 12px 8px;
+}
+
+.flux-quote-box-fields label {
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 600;
+}
+
+.flux-quote-box-fields select {
+	width: 100%;
+	max-width: none;
+}
+
+.flux-quote-history {
+	margin: 0;
+}
+
+.flux-quote-history li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	padding: 6px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.flux-quote-history time {
+	color: #646970;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.flux-quote-sheet {
+	padding: 24px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+}
+
+.flux-quote-sheet__header {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 24px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+#poststuff .flux-quote-sheet__header h2 {
+	margin: 0 0 12px;
+	padding: 0;
+	font-size: 20px;
+}
+
+.flux-quote-sheet__header p {
+	margin: 0;
+	line-height: 1.7;
+}
+
+@media screen and (max-width: 782px) {
+	.flux-quote-sheet__header {
+		grid-template-columns: 1fr;
+	}
+}
+
+.flux-quote-sheet__section h3 {
+	margin: 24px 0 4px;
+}
+
+.flux-quote-sheet__section .widefat {
+	margin-top: 8px;
+}
+
+.flux-quote-sheet__footer {
+	margin-top: 24px;
+	padding-top: 12px;
+	border-top: 1px solid #dcdcde;
+	color: #646970;
+	font-size: 12px;
+}
+
+.flux-quote-fields {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 6px 16px;
+	margin: 0;
+}
+
+.flux-quote-fields dt {
+	font-weight: 600;
+}
+
+.flux-quote-fields dd {
+	margin: 0;
+}
+
+.flux-quote-sheet + .flux-quote-technical {
+	margin-top: 20px;
+}
+
+.flux-quote-technical .CodeMirror {
+	height: 400px;
+	border: 1px solid #dcdcde;
+}
+
+.flux-quote-technical--main .CodeMirror,
+.flux-quote-technical--main .flux-quote-json {
+	height: calc(100vh - 220px);
+	min-height: 400px;
+	max-height: none;
+}
+
+.flux-quote-technical summary {
+	cursor: pointer;
+	list-style: none;
+}
+
+.flux-quote-technical summary::-webkit-details-marker {
+	display: none;
+}
+
+.flux-quote-technical summary::after {
+	content: "\f140";
+	margin-right: 12px;
+	font: normal 20px/1 dashicons;
+}
+
+.flux-quote-technical[open] summary::after {
+	content: "\f142";
+}
+
+.flux-quote-technical summary:focus:not(:focus-visible) {
+	outline: none;
+	box-shadow: none;
+}
+
+.flux-quote-settings {
+	--flux-quote-accent: var(--wp-admin-theme-color, #2271b1);
+	--flux-quote-panel-height: max(480px, calc(100vh - 360px));
+}
+
+.flux-quote-settings__card {
+	margin-top: 16px;
+	padding: 20px 24px 24px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-bottom: 0;
+}
+
+.flux-quote-settings__card > h2 {
+	margin: 0 0 4px;
+}
+
+.flux-quote-settings__card > .description {
+	margin: 0;
+}
+
+.flux-quote-settings__bar {
+	position: sticky;
+	bottom: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 12px 24px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-top-color: #dcdcde;
+	box-shadow: 0 -4px 8px -6px rgba(0, 0, 0, 0.15);
+}
+
+.flux-quote-settings__logo {
+	display: block;
+	max-width: 240px;
+	max-height: 80px;
+}
+
+.flux-quote-settings__logo[hidden] {
+	display: none;
+}
+
+.flux-quote-settings__columns {
+	display: grid;
+	grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+	gap: 32px;
+	align-items: start;
+	margin-top: 24px;
+}
+
+.flux-quote-settings__card > .flux-quote-settings__columns:first-child {
+	margin-top: 0;
+}
+
+@media screen and (max-width: 1199px) {
+	.flux-quote-settings__columns {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.flux-quote-settings__toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px 12px;
+	min-height: 30px;
+	margin-bottom: 16px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.flux-quote-settings__actions {
+	display: flex;
+	gap: 16px;
+}
+
+.flux-quote-settings__toolbar h3 {
+	margin: 0;
+	font-size: 14px;
+}
+
+.flux-quote-settings__toolbar .dashicons-external {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+	text-decoration: none;
+	vertical-align: text-bottom;
+}
+
+.flux-quote-settings__field {
+	margin-bottom: 16px;
+}
+
+.flux-quote-settings__label {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 600;
+}
+
+.flux-quote-settings__input {
+	width: 100%;
+	margin: 0;
+}
+
+.flux-quote-settings__field--body .flux-quote-settings__label {
+	float: left;
+	margin: 8px 0 0;
+}
+
+.flux-quote-settings__editor .CodeMirror,
+.flux-quote-settings__editor textarea.code {
+	height: var(--flux-quote-panel-height);
+	border: 1px solid #dcdcde;
+}
+
+.flux-quote-settings__editor textarea.flux-quote-settings__theme,
+.flux-quote-settings__theme + .CodeMirror {
+	height: 240px;
+	margin-bottom: 24px;
+}
+
+.flux-quote-settings__errors {
+	margin: 12px 0 0;
+}
+
+.flux-quote-settings__errors ul {
+	margin: 0.5em 0;
+	list-style: disc inside;
+}
+
+.flux-quote-settings__placeholders {
+	padding-top: 16px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.flux-quote-settings__placeholders summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.flux-quote-settings__placeholders .description {
+	margin: 4px 0 12px;
+}
+
+.flux-quote-settings__placeholders dl {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 8px 12px;
+	align-items: center;
+	margin: 0;
+}
+
+.flux-quote-settings__placeholders dt,
+.flux-quote-settings__placeholders dd {
+	margin: 0;
+}
+
+.flux-quote-settings__placeholders dd {
+	color: #50575e;
+}
+
+.flux-quote-chip {
+	display: inline-flex;
+	align-items: center;
+	min-height: 24px;
+	padding: 0 10px;
+	border: 1px solid #c3c4c7;
+	border-radius: 12px;
+	background: #f6f7f7;
+	color: #1d2327;
+	font: 12px/1 Consolas, Monaco, monospace;
+	cursor: copy;
+	transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.flux-quote-chip:hover,
+.flux-quote-chip:focus-visible {
+	border-color: var(--flux-quote-accent);
+	color: var(--flux-quote-accent);
+	background: #f0f6fc;
+}
+
+.flux-quote-chip:focus-visible {
+	outline: 2px solid transparent;
+	box-shadow: 0 0 0 1px var(--flux-quote-accent);
+}
+
+.flux-quote-chip.is-copied {
+	border-color: #00a32a;
+	background: #edfaef;
+	color: #005c12;
+}
+
+.flux-quote-settings__preview {
+	position: sticky;
+	top: 52px;
+}
+
+@media screen and (max-width: 1199px) {
+	.flux-quote-settings__preview {
+		position: static;
+	}
+}
+
+.flux-quote-settings__preview .notice {
+	margin: 0 0 12px;
+}
+
+.flux-quote-settings__frame {
+	position: relative;
+	overflow: hidden;
+	background: #f0f0f1;
+	border: 1px solid #dcdcde;
+}
+
+.flux-quote-settings__inbox {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	padding: 10px 16px;
+	background: #fff;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.flux-quote-settings__inbox span {
+	color: #646970;
+}
+
+.flux-quote-settings__frame iframe {
+	display: block;
+	width: 100%;
+	border: 0;
+}
+
+[data-preview="mail"] .flux-quote-settings__frame iframe {
+	min-height: 240px;
+}
+
+[data-preview="pdf"] .flux-quote-settings__frame iframe {
+	height: var(--flux-quote-panel-height);
+	background: #525659;
+}
+
+.flux-quote-settings__loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.6);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.15s, visibility 0.15s;
+}
+
+.flux-quote-settings__frame.is-loading .flux-quote-settings__loading {
+	opacity: 1;
+	visibility: visible;
+	transition-delay: 0.2s;
+}
+
+.flux-quote-settings__loading .spinner {
+	float: none;
+	margin: 0;
+}
+
+@media screen and (max-width: 782px) {
+	.flux-quote-settings__card,
+	.flux-quote-settings__bar {
+		padding-right: 16px;
+		padding-left: 16px;
+	}
+}
+
+@media print {
+	#adminmenumain,
+	#wpadminbar,
+	#wpfooter,
+	#screen-meta-links,
+	.notice,
+	.flux-quote-detail > h1,
+	.flux-quote-no-print {
+		display: none !important;
+	}
+
+	#wpcontent,
+	#wpbody-content,
+	#poststuff #post-body.columns-2 {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.flux-quote-sheet {
+		border: 0;
+		padding: 0;
+	}
+}

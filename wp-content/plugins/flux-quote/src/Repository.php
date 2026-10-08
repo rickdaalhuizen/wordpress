@@ -12,6 +12,7 @@ namespace Flux\Quote;
 
 use WP_Error;
 use WP_Post;
+use WP_Query;
 
 final class Repository
 {
@@ -27,17 +28,40 @@ final class Repository
     private const PDF_STATUS = '_flux_pdf_status';
     private const MAIL_STATUS = '_flux_mail_status';
     private const MAIL_ERROR = '_flux_mail_error';
+    private const STATUS = '_flux_status';
 
     private const MAX_ID_ATTEMPTS = 3;
+    private const TITLES_CLEANED = 'flux_quote_titles_cleaned';
 
     public function register_post_types(): void
     {
         $this->register_post_type(
-            self::CONFIGURATION_TYPE,
-            __('Configurations', 'flux-quote'),
-            __('Configuration', 'flux-quote'),
+            self::QUOTATION_TYPE,
+            [
+                'labels' => [
+                    'name' => __('Quotations', 'flux-quote'),
+                    'singular_name' => __('Quotation', 'flux-quote'),
+                    'all_items' => __('Quotations', 'flux-quote'),
+                    'search_items' => __('Search quotations', 'flux-quote'),
+                    'not_found' => __('No quotations yet. They appear when a customer requests one.', 'flux-quote'),
+                    'not_found_in_trash' => __('No quotations in the trash.', 'flux-quote'),
+                ],
+                'show_in_menu' => AdminUi::MENU,
+            ]
         );
-        $this->register_post_type(self::QUOTATION_TYPE, __('Quotations', 'flux-quote'), __('Quotation', 'flux-quote'));
+        $this->register_post_type(
+            self::CONFIGURATION_TYPE,
+            [
+                'labels' => [
+                    'name' => __('Configurations', 'flux-quote'),
+                    'singular_name' => __('Configuration', 'flux-quote'),
+                    'search_items' => __('Search configurations', 'flux-quote'),
+                    'not_found' => __('No configurations found.', 'flux-quote'),
+                    'not_found_in_trash' => __('No configurations in the trash.', 'flux-quote'),
+                ],
+                'show_in_menu' => AdminUi::MENU,
+            ]
+        );
     }
 
     public function save_configuration(?string $title, array $data): string|WP_Error
@@ -79,10 +103,70 @@ final class Repository
                 self::DOCUMENT => $document,
                 self::PDF_STATUS => PdfStatus::Pending->value,
                 self::MAIL_STATUS => MailStatus::Pending->value,
+                self::STATUS => QuoteStatus::Draft->value,
             ]
         );
 
         return is_wp_error($post_id) ? $post_id : $this->to_quotation(get_post($post_id));
+    }
+
+    public function maybe_clean_titles(): void
+    {
+        if (get_option(self::TITLES_CLEANED)) {
+            return;
+        }
+
+        $posts = get_posts(
+            [
+                'post_type' => [self::CONFIGURATION_TYPE, self::QUOTATION_TYPE],
+                'post_status' => 'any',
+                'posts_per_page' => -1,
+            ]
+        );
+        foreach ($posts as $post) {
+            $title = $this->clean_title($post->post_title);
+            if ($title !== $post->post_title) {
+                wp_update_post(wp_slash(['ID' => $post->ID, 'post_title' => $title]));
+            }
+        }
+
+        update_option(self::TITLES_CLEANED, 1, false);
+    }
+
+    public function public_id_meta_query(string $public_id): array
+    {
+        return [['key' => self::PUBLIC_ID, 'value' => $public_id]];
+    }
+
+    public function save_status(int $post_id, QuoteStatus $status): void
+    {
+        update_post_meta($post_id, self::STATUS, $status->value);
+    }
+
+    public function status_meta_query(QuoteStatus $status): array
+    {
+        $query = [['key' => self::STATUS, 'value' => $status->value]];
+
+        if (QuoteStatus::Draft === $status) {
+            $query = ['relation' => 'OR', $query[0], ['key' => self::STATUS, 'compare' => 'NOT EXISTS']];
+        }
+
+        return $query;
+    }
+
+    public function count_quotations(QuoteStatus $status): int
+    {
+        $query = new WP_Query(
+            [
+                'post_type' => self::QUOTATION_TYPE,
+                'post_status' => 'publish',
+                'posts_per_page' => 1,
+                'fields' => 'ids',
+                'meta_query' => $this->status_meta_query($status),
+            ]
+        );
+
+        return $query->found_posts;
     }
 
     public function find_quotation(string $public_id, string $private_id): ?Quotation
@@ -95,6 +179,13 @@ final class Repository
         }
 
         return $this->to_quotation($post);
+    }
+
+    public function latest_quotation(): ?Quotation
+    {
+        $posts = get_posts(['post_type' => self::QUOTATION_TYPE, 'post_status' => 'any', 'posts_per_page' => 1]);
+
+        return $posts ? $this->to_quotation($posts[0]) : null;
     }
 
     public function save_pdf_result(Quotation $quotation, ?string $pdf_url): Quotation
@@ -131,17 +222,15 @@ final class Repository
         return $this->to_quotation($post);
     }
 
-    private function register_post_type(string $name, string $plural, string $singular): void
+    private function register_post_type(string $name, array $args): void
     {
-        $args = [
-            'labels' => [
-                'name' => $plural,
-                'singular_name' => $singular,
-            ],
+        $args += [
             'public' => false,
             'show_ui' => true,
             'supports' => ['title'],
             'rewrite' => false,
+            'capabilities' => ['create_posts' => 'do_not_allow'],
+            'map_meta_cap' => true,
         ];
 
         register_post_type($name, apply_filters('flux_quote/post_type_args', $args, $name));
@@ -169,7 +258,7 @@ final class Repository
             wp_slash(
                 [
                     'post_type' => $post_type,
-                    'post_title' => $title,
+                    'post_title' => $this->clean_title($title),
                     'post_status' => 'publish',
                     'meta_input' => $meta,
                 ]
@@ -188,6 +277,11 @@ final class Repository
         }
 
         return $post_id;
+    }
+
+    private function clean_title(string $title): string
+    {
+        return (string) preg_replace('#\s+\d{1,2}/\d{1,2}/\d{4}(\s+\d{1,2}:\d{2}(:\d{2})?)?$#', '', trim($title));
     }
 
     private function unique_public_id(string $post_type): string|WP_Error
@@ -247,6 +341,7 @@ final class Repository
         $mail_error = $this->meta($post->ID, self::MAIL_ERROR);
 
         return new Quotation(
+            post_id: $post->ID,
             public_id: $this->meta($post->ID, self::PUBLIC_ID),
             private_id: $this->meta($post->ID, self::PRIVATE_ID),
             title: $post->post_title,
@@ -257,6 +352,7 @@ final class Repository
             pdf_status: PdfStatus::tryFrom($this->meta($post->ID, self::PDF_STATUS)) ?? PdfStatus::Pending,
             mail_status: MailStatus::tryFrom($this->meta($post->ID, self::MAIL_STATUS)) ?? MailStatus::Pending,
             mail_error: '' === $mail_error ? null : $mail_error,
+            status: QuoteStatus::tryFrom($this->meta($post->ID, self::STATUS)) ?? QuoteStatus::Draft,
             created_at: $post->post_date,
         );
     }

@@ -6,7 +6,7 @@
  * Override it by copying this file to yourtheme/flux-quote/emails/quotation.php.
  *
  * Available in $args:
- * - content   string                  Body edited in Quotations → Mail settings, placeholders replaced. Safe HTML.
+ * - content   string                  Body edited in Flux → Settings, placeholders replaced. Safe HTML.
  * - subject   string                  Mail subject.
  * - site_name string                  Site name.
  * - quotation Flux\Quote\Quotation    The quotation being sent.
